@@ -1,6 +1,8 @@
 package advent;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.stream.IntStream;
 
 public class DataUtility {
 
@@ -25,5 +27,9 @@ public class DataUtility {
   
   public static boolean isInBounds(Object[][] matrix, int x, int y) {
     return x >= 0 && x < matrix.length && y >= 0 && y < matrix[0].length;
+  }
+  
+  public static IntStream toIntStream(Collection<Integer> ints) {
+    return ints.stream().mapToInt(Integer::intValue);
   }
 }
