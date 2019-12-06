@@ -1,6 +1,7 @@
 package advent;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.Arrays;
 
 public class Day02 {
@@ -17,29 +18,10 @@ public class Day02 {
   }
 
   private static int runProgram(int[] program, int noun, int verb) {
-    int[] memory = Arrays.copyOf(program, program.length);
-    memory[1] = noun;
-    memory[2] = verb;
+    program[1] = noun;
+    program[2] = verb;
 
-    int i = 0; // Instruction pointer
-    while (i >= 0 && i < memory.length) {
-      switch (memory[i]) {
-        case 1: // ADD $1 $2 $3 --- m[$3] = m[$1] + m[$2]
-          memory[memory[i + 3]] = memory[memory[i + 1]] + memory[memory[i + 2]];
-          i += 4;
-          break;
-        case 2: // MUL $1 $2 $3 --- m[$3] = m[$1] * m[$2]
-          memory[memory[i + 3]] = memory[memory[i + 1]] * memory[memory[i + 2]];
-          i += 4;
-          break;
-        case 99: // END --- terminates program
-          return memory[0];
-        default:
-          throw new RuntimeException("Unexpected opcode: " + memory[i]);
-      }
-    }
-
-    throw new RuntimeException("Instruction pointer out of bounds");
+    return ShipComputer.runProgram(program, new ArrayDeque<>(), new ArrayDeque<>());
   }
 
   private static final int MIN_NOUN_VERB = 0;
