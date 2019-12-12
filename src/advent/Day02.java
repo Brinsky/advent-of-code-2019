@@ -21,7 +21,9 @@ public class Day02 {
     program[1] = noun;
     program[2] = verb;
 
-    return ShipComputer.runProgram(program, new ArrayDeque<>(), new ArrayDeque<>());
+    ShipComputer computer = new ShipComputer(program);
+    computer.execute();
+    return computer.readMemeory(0);
   }
 
   private static final int MIN_NOUN_VERB = 0;
