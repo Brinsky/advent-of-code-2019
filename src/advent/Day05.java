@@ -13,11 +13,11 @@ public class Day05 {
     FileUtility.printAndOutput(runWithInput(program, 5), "output/05b.txt");
   }
 
-  private static int runWithInput(int[] program, int initialInput) {
+  private static long runWithInput(int[] program, int initialInput) {
     ShipComputer computer = new ShipComputer(program);
     computer.addInput(initialInput);
     computer.execute();
-    
+
     while (computer.outputSize() > 1) {
       if (computer.removeOutput() != 0) {
         throw new RuntimeException("Found tests with non-zero output");

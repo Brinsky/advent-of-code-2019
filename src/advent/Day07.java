@@ -21,7 +21,7 @@ public class Day07 {
         findMaxThrust(program, new int[] {5, 6, 7, 8, 9}, true), "output/07b.txt");
   }
 
-  private static int findMaxThrust(int[] program, int[] phaseOptions, boolean feedbackLoop) {
+  private static long findMaxThrust(int[] program, int[] phaseOptions, boolean feedbackLoop) {
     Map<Integer, Boolean> phasesUsed =
         Arrays.stream(phaseOptions)
             .boxed()
@@ -30,7 +30,7 @@ public class Day07 {
   }
 
   // Recursively tries every valid phase setting configuration
-  private static int findMaxThrust(
+  private static long findMaxThrust(
       int[] program,
       boolean feedbackLoop,
       int[] phaseSettings,
@@ -40,12 +40,12 @@ public class Day07 {
       return computeThrust(program, phaseSettings, feedbackLoop);
     }
 
-    int maxThrust = Integer.MIN_VALUE;
+    long maxThrust = Integer.MIN_VALUE;
     for (int phase : phasesUsed.keySet()) {
       if (!phasesUsed.get(phase)) {
         phasesUsed.put(phase, true);
         phaseSettings[index] = phase;
-        int thrust = findMaxThrust(program, feedbackLoop, phaseSettings, index + 1, phasesUsed);
+        long thrust = findMaxThrust(program, feedbackLoop, phaseSettings, index + 1, phasesUsed);
         if (thrust > maxThrust) {
           maxThrust = thrust;
         }
@@ -56,14 +56,14 @@ public class Day07 {
     return maxThrust;
   }
 
-  private static int computeThrust(int[] program, int[] phaseSettings, boolean feedbackLoop) {
+  private static long computeThrust(int[] program, int[] phaseSettings, boolean feedbackLoop) {
     ShipComputer[] amplifiers = new ShipComputer[phaseSettings.length];
     for (int i = 0; i < phaseSettings.length; i++) {
       amplifiers[i] = new ShipComputer(program);
       amplifiers[i].addInput(phaseSettings[i]);
     }
 
-    int previousOutput = 0;
+    long previousOutput = 0;
     do {
       for (ShipComputer amplifier : amplifiers) {
         amplifier.addInput(previousOutput);

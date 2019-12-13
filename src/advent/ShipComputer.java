@@ -1,38 +1,56 @@
 package advent;
 
-import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.Queue;
+import java.util.*;
 
 public class ShipComputer {
   private static final int[] POWERS_OF_TEN = {1, 10, 100, 1000, 10000, 100000};
 
-  private final int[] memory;
-  private int i = 0; // Instruction pointer
+  private final Map<Long, Long> memory;
 
-  private final Queue<Integer> input = new ArrayDeque<>();
-  private final Queue<Integer> output = new ArrayDeque<>();
+  private long instructionPointer = 0; // Instruction pointer
+  private long relativeBase = 0;
+
+  private final Queue<Long> input = new ArrayDeque<>();
+  private final Queue<Long> output = new ArrayDeque<>();
 
   public ShipComputer(int[] program) {
-    this.memory = Arrays.copyOf(program, program.length);
+    ;
+    memory = new HashMap<>(program.length);
+    for (int i = 0; i < program.length; i++) {
+      memory.put((long) i, (long) program[i]);
+    }
   }
 
-  public int readMemeory(int index) {
-    return memory[index];
+  public ShipComputer(long[] program) {
+    memory = new HashMap<>(program.length);
+    for (int i = 0; i < program.length; i++) {
+      memory.put((long) i, program[i]);
+    }
   }
 
-  public void addInput(int value) {
+  public long readMemory(long index) {
+    if (index < 0) {
+      throw new ArrayIndexOutOfBoundsException(
+          "Cannot read memory at negative positions: " + index);
+    }
+    if (memory.containsKey(index)) {
+      return memory.get(index);
+    }
+    return 0;
+  }
+
+  public void addInput(long value) {
     input.add(value);
   }
 
-  public int removeOutput() {
+  public long removeOutput() {
     return output.remove();
   }
 
   public boolean hasOutput() {
     return !output.isEmpty();
   }
-  
+
   public int outputSize() {
     return output.size();
   }
@@ -46,77 +64,101 @@ public class ShipComputer {
    *     terminated.
    */
   public boolean execute() {
-    while (i >= 0 && i < memory.length) {
-      int opCode = memory[i] % 100;
+    while (instructionPointer >= 0) {
+      int opCode = (int) (readMemory(instructionPointer) % 100);
 
       switch (opCode) {
         case 1: // ADD
-          writeParameter(memory, i, 2, readParameter(memory, i, 0) + readParameter(memory, i, 1));
-          i += 4;
+          writeParameter(2, readParameter(0) + readParameter(1));
+          instructionPointer += 4;
           break;
         case 2: // MULTIPLY
-          writeParameter(memory, i, 2, readParameter(memory, i, 0) * readParameter(memory, i, 1));
-          i += 4;
+          writeParameter(2, readParameter(0) * readParameter(1));
+          instructionPointer += 4;
           break;
         case 3: // INPUT
           if (input.isEmpty()) {
             return true;
           }
-          writeParameter(memory, i, 0, input.remove());
-          i += 2;
+          writeParameter(0, input.remove());
+          instructionPointer += 2;
           break;
         case 4: // OUT
-          output.add(readParameter(memory, i, 0));
-          i += 2;
+          output.add(readParameter(0));
+          instructionPointer += 2;
           break;
         case 5: // JUMP IF TRUE
-          if (readParameter(memory, i, 0) != 0) {
-            i = readParameter(memory, i, 1);
+          if (readParameter(0) != 0) {
+            instructionPointer = readParameter(1);
           } else {
-            i += 3;
+            instructionPointer += 3;
           }
           break;
         case 6: // JUMP IF FALSE
-          if (readParameter(memory, i, 0) == 0) {
-            i = readParameter(memory, i, 1);
+          if (readParameter(0) == 0) {
+            instructionPointer = readParameter(1);
           } else {
-            i += 3;
+            instructionPointer += 3;
           }
           break;
         case 7: // LESS THAN
-          writeParameter(
-              memory, i, 2, readParameter(memory, i, 0) < readParameter(memory, i, 1) ? 1 : 0);
-          i += 4;
+          writeParameter(2, readParameter(0) < readParameter(1) ? 1 : 0);
+          instructionPointer += 4;
           break;
         case 8: // EQUALS
-          writeParameter(
-              memory, i, 2, readParameter(memory, i, 0) == readParameter(memory, i, 1) ? 1 : 0);
-          i += 4;
+          writeParameter(2, readParameter(0) == readParameter(1) ? 1 : 0);
+          instructionPointer += 4;
+          break;
+        case 9: // ADJUST RELATIVE BASE
+          relativeBase += readParameter(0);
+          instructionPointer += 2;
           break;
         case 99: // END --- terminates program
           return false;
         default:
-          throw new RuntimeException("Unexpected opcode: " + memory[i]);
+          throw new RuntimeException("Unexpected opcode: " + readMemory(instructionPointer));
       }
     }
 
     throw new RuntimeException("Instruction pointer out of bounds");
   }
 
-  private static void writeParameter(
-      int[] memory, int instructionStart, int parameterIndex, int value) {
-    final int modes = memory[instructionStart] / 100;
-    if ((modes / POWERS_OF_TEN[parameterIndex]) % 10
-        != 0) { // If output location parameter is in immediate mode
-      throw new RuntimeException("Parameters describing output locations must be in position mode");
+  private void writeParameter(int index, long value) {
+    final long parameter = readMemory(instructionPointer + index + 1);
+    final int mode = getMode(readMemory(instructionPointer), index);
+
+    switch (mode) {
+      case 0: // Position mode
+        memory.put(parameter, value);
+        return;
+      case 1: // Immediate mode
+        throw new RuntimeException(
+            "Parameters describing output locations must not be in immediate mode");
+      case 2: // Relative mode
+        memory.put(relativeBase + parameter, value);
+        return;
+      default:
+        throw new RuntimeException("Unknown parameter mode: " + mode);
     }
-    memory[memory[instructionStart + parameterIndex + 1]] = value;
   }
 
-  private static int readParameter(int[] memory, int instructionStart, int parameterIndex) {
-    // 0 = position mode, 1 = immediate mode
-    final int modes = memory[instructionStart] / 100;
-    final int parameter = memory[instructionStart + parameterIndex + 1];
-    return ((modes / POWERS_OF_TEN[parameterIndex]) % 10) == 0 ? memory[parameter] : parameter;
+  private long readParameter(int index) {
+    final long parameter = readMemory(instructionPointer + index + 1);
+    final int mode = getMode(readMemory(instructionPointer), index);
+
+    switch (mode) {
+      case 0: // Position mode
+        return readMemory(parameter);
+      case 1: // Immediate mode
+        return parameter;
+      case 2: // Relative mode
+        return readMemory(relativeBase + parameter);
+      default:
+        throw new RuntimeException("Unknown parameter mode: " + mode);
+    }
+  }
+
+  private static int getMode(long operation, int parameterIndex) {
+    return (int) (((operation / 100) / POWERS_OF_TEN[parameterIndex]) % 10);
   }
 }

@@ -1,8 +1,6 @@
 package advent;
 
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Arrays;
 
 public class Day02 {
   private static final int TARGET_VALUE = 19690720; // Provided in Day 2, Part 2 problem description
@@ -17,13 +15,13 @@ public class Day02 {
     FileUtility.printAndOutput(searchNounVerbSpace(program, TARGET_VALUE), "output/02b.txt");
   }
 
-  private static int runProgram(int[] program, int noun, int verb) {
+  private static long runProgram(int[] program, int noun, int verb) {
     program[1] = noun;
     program[2] = verb;
 
     ShipComputer computer = new ShipComputer(program);
     computer.execute();
-    return computer.readMemeory(0);
+    return computer.readMemory(0);
   }
 
   private static final int MIN_NOUN_VERB = 0;

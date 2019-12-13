@@ -9,18 +9,29 @@ import java.util.regex.Pattern;
 public class ParseUtility {
   private static final Pattern INT_PATTERN = Pattern.compile("[+\\-]?\\d+");
 
-  public static List<Integer> extractIntegers(String s) {
-    List<Integer> integers = new ArrayList<>();
-    Matcher matcher = INT_PATTERN.matcher(s);
+  public static <T> List<T> extractValues(
+      String s, Pattern pattern, Function<String, T> parseFunction) {
+    List<T> values = new ArrayList<>();
+    Matcher matcher = pattern.matcher(s);
     while (matcher.find()) {
-      integers.add(Integer.parseInt(matcher.group()));
+      values.add(parseFunction.apply(matcher.group()));
     }
 
-    return integers;
+    return values;
+  }
+
+  public static List<Integer> extractIntegers(String s) {
+    return extractValues(s, INT_PATTERN, Integer::parseInt);
   }
 
   public static int[] extractInts(String s) {
     return extractIntegers(s).stream().mapToInt(Integer::intValue).toArray();
+  }
+
+  public static long[] extractLongs(String s) {
+    return extractValues(s, INT_PATTERN, Long::parseLong).stream()
+        .mapToLong(Long::longValue)
+        .toArray();
   }
 
   /** Returns group #1 from the first match found in the given string */
