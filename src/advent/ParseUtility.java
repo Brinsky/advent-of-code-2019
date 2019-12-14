@@ -60,4 +60,17 @@ public class ParseUtility {
 
     return matchedGroups;
   }
+
+  public static Character[][] parseMatrix(String matrixString) {
+    String[] rows = matrixString.split("\n");
+
+    Character[][] matrix = new Character[rows[0].length()][rows.length];
+    for (int x = 0; x < matrix.length; x++) {
+      for (int y = 0; y < matrix[0].length; y++) {
+        matrix[x][y] = rows[y].charAt(x);
+      }
+    }
+
+    return matrix;
+  }
 }

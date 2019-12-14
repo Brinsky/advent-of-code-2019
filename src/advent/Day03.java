@@ -98,13 +98,27 @@ public class Day03 {
     }
   }
 
-  private static class Point {
+  public static class Point {
     public final int x;
     public final int y;
 
     public Point(int x, int y) {
       this.x = x;
       this.y = y;
+    }
+
+    /** Returns a new point where the coordinates have been divided by their GCD */
+    public Point simplify() {
+      int gcd = gcd(x, y);
+      return new Point(x / gcd, y / gcd);
+    }
+
+    public Point plus(Point p) {
+      return new Point(x + p.x, y + p.y);
+    }
+
+    public Point minus(Point p) {
+      return new Point(x - p.x, y - p.y);
     }
 
     @Override
@@ -129,6 +143,15 @@ public class Day03 {
 
     public int manhattanDistance(Point p) {
       return Math.abs(x - p.x) + Math.abs(y - p.y);
+    }
+
+    private static int gcd(int a, int b) {
+      while (b != 0) {
+        int temp = b;
+        b = a % b;
+        a = temp;
+      }
+      return Math.abs(a);
     }
   }
 }
