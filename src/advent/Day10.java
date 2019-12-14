@@ -17,7 +17,7 @@ public class Day10 {
     Set<Point> points = parsePoints(FileUtility.fileToString("input/10.txt"));
 
     // Part one
-    Point origin = points.stream().max(Comparator.comparingInt(p -> numVisible(p, points))).get();
+    Point origin = points.stream().max(Comparator.comparing(p -> numVisible(p, points))).get();
     FileUtility.printAndOutput(numVisible(origin, points), "output/10a.txt");
 
     // Part two
