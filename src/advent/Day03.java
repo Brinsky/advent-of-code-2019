@@ -109,7 +109,7 @@ public class Day03 {
 
     /** Returns a new point where the coordinates have been divided by their GCD */
     public Point simplify() {
-      int gcd = gcd(x, y);
+      int gcd = MathUtility.gcd(x, y);
       return new Point(x / gcd, y / gcd);
     }
 
@@ -143,15 +143,6 @@ public class Day03 {
 
     public int manhattanDistance(Point p) {
       return Math.abs(x - p.x) + Math.abs(y - p.y);
-    }
-
-    private static int gcd(int a, int b) {
-      while (b != 0) {
-        int temp = b;
-        b = a % b;
-        a = temp;
-      }
-      return Math.abs(a);
     }
   }
 }
