@@ -2,3 +2,5 @@ out/
 output/
 .idea/
 .attach*
+*.sh
+*.iml

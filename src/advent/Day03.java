@@ -107,6 +107,14 @@ public class Day03 {
       this.y = y;
     }
 
+    public int getX() {
+      return x;
+    }
+
+    public int getY() {
+      return y;
+    }
+
     /** Returns a new point where the coordinates have been divided by their GCD */
     public Point simplify() {
       int gcd = MathUtility.gcd(x, y);
