@@ -71,7 +71,7 @@ public class Day11 {
     return uniquePanels;
   }
 
-  private enum Direction {
+  public enum Direction {
     EAST(new Point(1, 0)),
     NORTH(new Point(0, -1)),
     WEST(new Point(-1, 0)),
@@ -107,6 +107,20 @@ public class Day11 {
           return NORTH;
         case SOUTH:
           return WEST;
+      }
+      throw new UnsupportedOperationException();
+    }
+
+    Direction opposite() {
+      switch (this) {
+        case EAST:
+          return WEST;
+        case NORTH:
+          return SOUTH;
+        case WEST:
+          return EAST;
+        case SOUTH:
+          return NORTH;
       }
       throw new UnsupportedOperationException();
     }
